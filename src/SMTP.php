@@ -2,13 +2,8 @@
 
 namespace Log1x\SMTP;
 
-if (class_exists('SMTP')) {
-    return;
-}
+use function Env\env;
 
-/**
- * WordPress SMTP
- */
 class SMTP
 {
     /**
@@ -21,7 +16,7 @@ class SMTP
         'ssl' => [
             'verify_peer' => false,
             'verify_peer_name' => false,
-            'allow_self_signed'	=> true
+            'allow_self_signed' => true
         ],
         'timeout' => 10,
         'host' => '',
@@ -146,7 +141,7 @@ class SMTP
             add_action('phpmailer_init', function ($mail) {
                 $mail->isSMTP();
                 $mail->SMTPAuth = $this->config()->auth;
-                $mail->SMTPSecure = $this->config()->secure;
+                $mail->SMTPSecure = $this->config()->protocol;
                 $mail->SMTPOptions = ['ssl' => $this->config()->ssl];
                 $mail->Timeout = $this->config()->timeout;
 
@@ -196,7 +191,7 @@ class SMTP
 
             $mail->CharSet = get_bloginfo('charset');
             $mail->Subject = 'WP SMTP Validation';
-            $mail->Body	= 'Success.';
+            $mail->Body = 'Success.';
 
             $mail->Send();
             $mail->ClearAddresses();
@@ -204,7 +199,7 @@ class SMTP
         } catch (\phpMailerException $error) {
             return $this->notice(
                 $error->errorMessage(),
-                'error', 
+                'error',
                 true
             );
         } catch (Exception $error) {
